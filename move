@@ -1,1 +1,0 @@
-sudo rsync -av . /usr/local/ampps/www/Beta/record-screen/ --exclude=Arquivos/ --exclude=arquivos/ --exclude=node_modules/ --exclude=move --exclude=.git/
