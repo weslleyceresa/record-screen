@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Record</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		#ponteiro{
+	        position: fixed;
+	        z-index: 1;
+	        width: 16px;
+	        height: 16px;
+	        background: url('mouse-icon.png') no-repeat center center;
+	        background-size: 100%;
+	        margin-left: -8px;
+	        margin-top: -8px;
+      	}
+
+      	#click{
+	        position: fixed;
+	        z-index: 1;
+	        width: 20px;
+	        height: 20px;
+	        background: #000;
+	        opacity: 0.5;
+	        margin-left: -10px;
+	        margin-top: -10px;
+	        display: none;
+	        -webkit-border-radius: 50%;
+	        -moz-border-radius: 50%;
+	        border-radius: 50%;
+      	}
+      	#click.show{
+        	display: block;
+      	}
+
+      	#controle{
+	        position: fixed;
+	        z-index: 1;
+	        top: 10px;
+	        right: 10px;
+      	}
+
+      	#content{
+        	min-height: 2000px;
+      	}
+	</style>
+</head>
+<body>
+	<div id="ponteiro"></div>
+	<div id="click"></div>
+
+	<button id="controle">Iniciar Gravação</button>
+
+	<div id="content">
+		
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="record-screen.js"></script>
+	<script type="text/javascript">
+		(function(){
+			$.fn.fakeClick = function(ms){
+	        	this.addClass("show");
+	          	setTimeout(function(){
+	            	this.removeClass("show")
+	          	}.bind(this), (ms == undefined ? 500 : ms));
+	          	return this;
+	        };
+
+	        function play(data, callback, finish){
+	        	var ctrl = [];
+
+	        	data.reverse();
+	        	var startTime = data[(data.length - 1)].timestamp;
+
+	        	data.forEach(function(item, index){
+
+	        		function fire(fireItem, fireIndex, fireCallback, fireFinish){
+
+	        			if(fireCallback)
+			        		fireCallback(fireItem, fireIndex);
+
+			        	if(fireIndex == 0){
+			        		console.log("[Record] Play finished");
+
+			        		ctrl.forEach(function(ctimeout){
+			        			clearTimeout(ctimeout);
+			        		});
+
+			        		ctrl = [];
+
+			        		if(fireFinish)
+			        			fireFinish();
+			        	}
+
+	        		}
+
+	        		var time = item.timestamp - startTime;
+
+	        		ctrl.push(setTimeout(function(){
+	        			fire(item, index, callback, finish);
+	        		}, time));
+	        	});
+	        }
+
+			var r = new RecordScreen(),
+				dataRecorded = [];
+
+			$("#controle").on("click", function(){
+				var self = $(this);
+
+				switch(self.text()){
+					case "Iniciar Gravação":
+						self.text("Gravando");
+						r.startRecord().getRecordOnFinishInteraction(function(data){
+							dataRecorded = dataRecorded.concat(data);
+						}, 200);
+					break;
+
+					case "Gravando":
+						self.text("Play");
+						r.stopRecord();
+					break;
+
+					case "Play":
+						self.text("Tocando");
+						self.attr("disabled", true);
+
+						//var data = r.getRecord();
+
+						play(dataRecorded, function(item, index){
+
+							$(window).scrollTop(item.scrollTop);
+
+							$("#ponteiro").css({
+								top: item.y,
+								left: item.x,
+							});
+
+							if(item.click)
+								$("#click").css({
+									top: item.y,
+									left: item.x,
+								}).fakeClick();
+
+						}, function(){
+
+							self.text("Play");
+							self.attr("disabled", false);
+
+						});
+					break;
+				}
+			})
+		})();
+	</script>
+</body>
+</html>
