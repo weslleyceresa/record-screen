@@ -13,16 +13,28 @@ RecordScreen.prototype.getLastTrack = function(){
       var lastIndex = self.mouseTrack.length - 1;
       return self.mouseTrack[lastIndex];
     }
-    return self.createTrack(0,0,false,false,0);
+    return self.createTrack({
+      windowWidth: 0,
+      windowHeight: 0,
+      documentHeight: 0,
+      x: 0,
+      y: 0,
+      click: false,
+      contextmenu: false,
+      scrollTop: 0
+    });
 };
 
-RecordScreen.prototype.createTrack = function(x, y, click, contextmenu, scrollTop){
+RecordScreen.prototype.createTrack = function(data){
     return {
-      x: x, 
-      y: y,
-      click: click,
-      contextmenu: contextmenu,
-      scrollTop: scrollTop,
+      windowWidth: data.windowWidth,
+      windowHeight: data.windowHeight,
+      documentHeight: data.documentHeight,
+      x: data.x, 
+      y: data.y,
+      click: data.click,
+      contextmenu: data.contextmenu,
+      scrollTop: data.scrollTop,
       timestamp: (new Date()).getTime()
     };       
 };
@@ -81,19 +93,46 @@ RecordScreen.prototype.startRecord = function(){
 
       	switch(e.type){
             case "click":
-            	var trackObj = self.createTrack(x, y, true, false, $(window).scrollTop());
+                var trackObj = self.createTrack({
+                  windowWidth: $(window).width(),
+                  windowHeight: $(window).height(),
+                  documentHeight: $(document).height(),
+                  x: x,
+                  y: y,
+                  click: true,
+                  contextmenu: false,
+                  scrollTop: $(window).scrollTop()
+                });
               	self.recordTrack(trackObj);
             break;
 
             case "contextmenu":
-             	 var trackObj = self.createTrack(x, y, false, true, $(window).scrollTop());
+             	  var trackObj = self.createTrack({
+                  windowWidth: $(window).width(),
+                  windowHeight: $(window).height(),
+                  documentHeight: $(document).height(),
+                  x: x,
+                  y: y,
+                  click: true,
+                  contextmenu: true,
+                  scrollTop: $(window).scrollTop()
+                });
               	self.recordTrack(trackObj);
             break;
 
             case "scroll":
               	self.delay(function(){
 
-                	var trackObj = self.createTrack(self.getLastTrack().x, self.getLastTrack().y, false, false, $(window).scrollTop());
+                	var trackObj = self.createTrack({
+                    windowWidth: $(window).width(),
+                    windowHeight: $(window).height(),
+                    documentHeight: $(document).height(),
+                    x: self.getLastTrack().x,
+                    y: self.getLastTrack().y,
+                    click: false,
+                    contextmenu: false,
+                    scrollTop: $(window).scrollTop()
+                  });
 
                 	self.recordTrack(trackObj);
 
@@ -101,7 +140,16 @@ RecordScreen.prototype.startRecord = function(){
             break;
 
             case "mousemove":
-              	var trackObj = self.createTrack(x, y, false, false, $(window).scrollTop());
+              	var trackObj = self.createTrack({
+                  windowWidth: $(window).width(),
+                  windowHeight: $(window).height(),
+                  documentHeight: $(document).height(),
+                  x: x,
+                  y: y,
+                  click: false,
+                  contextmenu: false,
+                  scrollTop: $(window).scrollTop()
+                });
               	self.recordTrack(trackObj);
             break;
       	}

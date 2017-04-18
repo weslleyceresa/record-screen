@@ -52,7 +52,6 @@
 	<button id="controle">Iniciar Gravação</button>
 
 	<div id="content">
-		
 	</div>
 
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -129,6 +128,8 @@
 						//var data = r.getRecord();
 
 						play(dataRecorded, function(item, index){
+
+							$("#content").css("height", item.documentHeight);
 
 							$(window).scrollTop(item.scrollTop);
 
