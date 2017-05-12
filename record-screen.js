@@ -3,7 +3,7 @@ var RecordScreen = function(){
     this.onFinishRecord = null;
     this.time2finish = 500;
     this.events = {};
-  	console.log("[Record] Instance");
+  	console.log("[Record] Instance"); //:()
     return this;
 };
 
